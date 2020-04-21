@@ -25,7 +25,7 @@
 
         public function userLogin($email, $password){
             if($this->isEmailExist($email)){
-                $hashed_password = getUsersPasswordByEmail($email); 
+                $hashed_password = $this->getUsersPasswordByEmail($email); 
                 if(password_verify($password, $hashed_password)){
                     return USER_AUTHENTICATED;
                 }else{
@@ -45,6 +45,22 @@
             return $password; 
         }
 
+        public function getAllUsers(){
+            $stmt = $this->con->prepare("SELECT id, email, name, school FROM users;");
+            $stmt->execute(); 
+            $stmt->bind_result($id, $email, $name, $school);
+            $users = array(); 
+            while($stmt->fetch()){ 
+                $user = array(); 
+                $user['id'] = $id; 
+                $user['email']=$email; 
+                $user['name'] = $name; 
+                $user['school'] = $school; 
+                array_push($users, $user);
+            }             
+            return $users; 
+        }
+
         public function getUserByEmail($email){
             $stmt = $this->con->prepare("SELECT id, email, name, school FROM users WHERE email = ?");
             $stmt->bind_param("s", $email);
@@ -57,6 +73,14 @@
             $user['name'] = $name; 
             $user['school'] = $school; 
             return $user; 
+        }
+
+        public function updateUser($email, $name, $school, $id){
+            $stmt = $this->con->prepare("UPDATE users SET email = ?, name = ?, school = ? WHERE id = ?");
+            $stmt->bind_param("sssi", $email, $name, $school, $id);
+            if($stmt->execute())
+                return true; 
+            return false; 
         }
 
         private function isEmailExist($email){

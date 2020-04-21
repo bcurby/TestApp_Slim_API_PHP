@@ -108,7 +108,7 @@ $app->post('/userlogin', function(Request $request, Response $response){
             $response_data = array();
 
             $response_data['error']=true; 
-            $response_data['message'] = 'User not exist';
+            $response_data['message'] = 'User does not exist';
 
             $response->write(json_encode($response_data));
 
