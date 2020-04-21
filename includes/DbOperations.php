@@ -83,6 +83,32 @@
             return false; 
         }
 
+        public function updatePassword($currentpassword, $newpassword, $email){
+            $hashed_password = $this->getUsersPasswordByEmail($email);
+            
+            if(password_verify($currentpassword, $hashed_password)){
+                
+                $hash_password = password_hash($newpassword, PASSWORD_DEFAULT);
+                $stmt = $this->con->prepare("UPDATE users SET password = ? WHERE email = ?");
+                $stmt->bind_param("ss",$hash_password, $email);
+
+                if($stmt->execute())
+                    return PASSWORD_CHANGED;
+                return PASSWORD_NOT_CHANGED;
+
+            }else{
+                return PASSWORD_DO_NOT_MATCH; 
+            }
+        }
+
+        public function deleteUser($id){
+            $stmt = $this->con->prepare("DELETE FROM users WHERE id = ?");
+            $stmt->bind_param("i", $id);
+            if($stmt->execute())
+                return true; 
+            return false; 
+        }
+
         private function isEmailExist($email){
             $stmt = $this->con->prepare("SELECT id FROM users WHERE email = ?");
             $stmt->bind_param("s", $email);
